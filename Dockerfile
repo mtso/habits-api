@@ -1,9 +1,12 @@
 FROM debian:jessie-slim
 
+ARG SERVICE_NAME
+
 WORKDIR /app
 
 COPY Rocket.toml .
 
-COPY build/release/token-service .
+COPY build/release/$SERVICE_NAME .
 
-CMD /app/token-service
+ENV SERVICE_NAME $SERVICE_NAME 
+ENTRYPOINT /app/$SERVICE_NAME
