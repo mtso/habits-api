@@ -6,4 +6,3 @@ rocksdb_path = "/tmp/habits-service.sst"
 address = "0.0.0.0"
 port = 8000
 rocksdb_path = "/volumes/rocksdb/habits.sst"
-

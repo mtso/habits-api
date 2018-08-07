@@ -3,7 +3,7 @@ use ksuid::Ksuid;
 use rocket_contrib::{Json, JsonValue};
 use std::collections::HashSet;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Habit {
     pub id: Ksuid,
     pub user_id: String,
@@ -25,7 +25,7 @@ impl Habit {
         }
     }
 
-    pub fn to_external(self) -> Json<JsonValue> {
+    pub fn to_external(&self) -> Json<JsonValue> {
         Json(json!({
             "id": self.id.to_base62(),
             "checks": self.checks,
@@ -34,5 +34,14 @@ impl Habit {
             "updated_at": self.updated_at,
             "timezone_offset": self.timezone_offset,
         }))
+    }
+}
+
+use std::hash::{Hash, Hasher};
+
+impl Hash for Habit {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+        self.user_id.hash(state);
     }
 }

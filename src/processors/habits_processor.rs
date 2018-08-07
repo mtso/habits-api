@@ -101,4 +101,8 @@ impl HabitsProcessor {
     pub fn delete_habit(&self, id: Ksuid) -> Result<(), String> {
         self.storage.delete_habit(id)
     }
+
+    pub fn get_habits_by_userid(&self, id: String) -> Result<HashSet<Habit>, String> {
+        self.storage.get_habits_by_userid(id)
+    }
 }

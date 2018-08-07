@@ -22,6 +22,7 @@ pub fn init_app() -> Result<Rocket, String> {
             resources::habits_resource::check_habit,
             resources::habits_resource::uncheck_habit,
             resources::habits_resource::reset_habit_checks,
+            resources::habits_resource::get_habits,
         ],
     );
 
@@ -70,7 +71,7 @@ fn must_init_db(dbpath: String) -> DB {
 
     // List column families used outside of default.
     use habits::constants::*;
-    let column_families = vec![CF_HABITS];
+    let column_families = vec![CF_HABITS_ID, CF_HABITS_USERID];
 
     let mut all = vec!["default"];
     all.extend(column_families.clone());

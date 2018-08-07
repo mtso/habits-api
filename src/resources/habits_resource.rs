@@ -2,13 +2,15 @@ use rocket::http::Status;
 use rocket::State;
 use rocket_contrib::{Json, JsonValue};
 use std::collections::HashSet;
-//use std::io::ErrorKind;
+//use std::io::ErrorKind; // FIXME: properly handle different errors
 
 use super::request_guards::wrapped_ksuid::KsuidWrapper;
 use super::status_response::StatusResponse;
 use processors::HabitsProcessor;
 
-#[derive(Debug, Serialize, Deserialize)]
+/// Request structs
+
+#[derive(Debug, Serialize, Deserialize, FromForm)]
 pub struct NewHabitRequest {
     user_id: String,
     timezone_offset: i32,
@@ -17,6 +19,11 @@ pub struct NewHabitRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UncheckHabitRequest {
     checks: HashSet<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromForm)]
+pub struct UserFilter {
+    user_id: String,
 }
 
 #[post("/", data = "<new_habit_request>")]
@@ -52,6 +59,32 @@ pub fn get_habit(
     match habits_processor.get_habit(id.unwrap()) {
         Ok(habit) => StatusResponse(Status::Ok, habit.to_external()),
         Err(e) => StatusResponse(Status::NotFound, Json(json!({ "error": format!("{}", e) }))),
+    }
+}
+
+#[get("/?<user_filter>")]
+pub fn get_habits(
+    habits_processor: State<HabitsProcessor>,
+    user_filter: UserFilter,
+) -> StatusResponse<Json<JsonValue>> {
+    use serde_json::Value;
+
+    match habits_processor.get_habits_by_userid(user_filter.user_id) {
+        Ok(habits) => {
+            let habits = habits
+                .iter()
+                .map(|h| {
+                    let JsonValue(ref v) = *h.to_external();
+                    v.clone()
+                })
+                .collect();
+
+            StatusResponse::ok(Json(JsonValue(Value::Array(habits))))
+        }
+        Err(e) => StatusResponse(
+            Status::InternalServerError,
+            Json(json!({ "error": format!("{}", e) })),
+        ),
     }
 }
 

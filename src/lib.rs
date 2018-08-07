@@ -1,4 +1,5 @@
 #![feature(plugin, decl_macro)]
+#![feature(custom_derive)]
 #![plugin(rocket_codegen)]
 
 extern crate rocket;
@@ -7,7 +8,7 @@ extern crate rocket_contrib;
 
 extern crate rocksdb;
 
-#[macro_use(log)]
+#[macro_use(log, warn)]
 extern crate log;
 
 extern crate chrono;
