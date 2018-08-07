@@ -12,27 +12,8 @@ Habits microservice.
 
 ## Build
 
-1. Build (or use pre-built) build image.
-
 ```bash
-docker build -t mtso/rust-rocksdb-build -f Dockerfile-build .
-```
-
-2. Build project binary.
-
-```bash
-docker run --rm -itd -v `pwd`/build:/root/target --name rust-build mtso/rust-rocksdb-build
-docker exec -it rust-build /bin/bash
-/install-rust.sh
-cargo build --release
-# Ctrl+D to exit container
-docker stop rust-build
-```
-
-3. Build deploy image.
-
-```bash
-docker build -t mtso/token-service .
+make build version=[version]
 ```
 
 ## API

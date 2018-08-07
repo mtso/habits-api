@@ -14,6 +14,7 @@ use processors::HabitsProcessor;
 pub struct NewHabitRequest {
     user_id: String,
     timezone_offset: i32,
+    title: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,13 +27,19 @@ pub struct UserFilter {
     user_id: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromForm)]
+pub struct UpdateHabitRequest {
+    timezone_offset: Option<i32>,
+    title: Option<String>,
+}
+
 #[post("/", data = "<new_habit_request>")]
 pub fn post_habit(
     habits_processor: State<HabitsProcessor>,
     new_habit_request: Json<NewHabitRequest>,
 ) -> StatusResponse<Json<JsonValue>> {
     let req = new_habit_request.into_inner();
-    match habits_processor.create_habit(req.user_id, req.timezone_offset) {
+    match habits_processor.create_habit(req.user_id, req.timezone_offset, req.title) {
         Ok(habit) => StatusResponse::ok(habit.to_external()),
         Err(e) => StatusResponse(
             Status::InternalServerError,
@@ -85,6 +92,19 @@ pub fn get_habits(
             Status::InternalServerError,
             Json(json!({ "error": format!("{}", e) })),
         ),
+    }
+}
+
+#[put("/<id>", data = "<update_habit_request>")]
+pub fn put_habit(
+    habits_processor: State<HabitsProcessor>,
+    id: KsuidWrapper,
+    update_habit_request: Json<UpdateHabitRequest>,
+) -> StatusResponse<Json<JsonValue>> {
+    let req = update_habit_request.into_inner();
+    match habits_processor.update_habit(id.unwrap(), req.title, req.timezone_offset) {
+        Ok(h) => StatusResponse::ok(h.to_external()),
+        Err(e) => StatusResponse(Status::NotFound, Json(json!({ "error": format!("{}", e) }))),
     }
 }
 

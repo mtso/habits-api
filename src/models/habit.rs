@@ -9,18 +9,20 @@ pub struct Habit {
     pub user_id: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub checks: HashSet<String>,
     pub timezone_offset: i32,
+    pub title: String,
+    pub checks: HashSet<String>,
 }
 
 impl Habit {
-    pub fn new(user_id: String, timezone_offset: i32) -> Self {
+    pub fn new(user_id: String, timezone_offset: i32, title: String) -> Self {
         Habit {
             id: Ksuid::generate(),
             user_id,
             checks: HashSet::new(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            title,
             timezone_offset,
         }
     }
@@ -32,6 +34,7 @@ impl Habit {
             "user_id": self.user_id,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "title": self.title,
             "timezone_offset": self.timezone_offset,
         }))
     }

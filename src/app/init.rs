@@ -10,14 +10,16 @@ pub fn init_app() -> Result<Rocket, String> {
 
     let app = app.attach(AdHoc::on_attach(manage_dbconn));
 
+    let app = app.mount("/api", routes![resources::healthcheck,]);
+
     // Set up routes.
     let app = app.mount(
         "/api/habits",
         routes![
-            resources::healthcheck,
             // Habits
             resources::habits_resource::post_habit,
             resources::habits_resource::get_habit,
+            resources::habits_resource::put_habit,
             resources::habits_resource::delete_habit,
             resources::habits_resource::check_habit,
             resources::habits_resource::uncheck_habit,

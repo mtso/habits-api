@@ -7,8 +7,5 @@ use processors::HabitsProcessor;
 
 #[get("/healthcheck")]
 pub fn healthcheck(_token_processor: State<HabitsProcessor>) -> StatusResponse<Json<JsonValue>> {
-    StatusResponse(
-        Status::Accepted,
-        Json(json!({ "message": "Not implemented" })),
-    )
+    StatusResponse(Status::Accepted, Json(json!({ "message": "Reachable" })))
 }

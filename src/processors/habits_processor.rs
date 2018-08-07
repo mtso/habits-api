@@ -14,11 +14,16 @@ impl HabitsProcessor {
         HabitsProcessor { storage }
     }
 
-    pub fn create_habit(&self, user_id: String, timezone_offset: i32) -> Result<Habit, String> {
-        let new_habit = Habit::new(user_id, timezone_offset);
+    pub fn create_habit(
+        &self,
+        user_id: String,
+        timezone_offset: i32,
+        title: String,
+    ) -> Result<Habit, String> {
+        let habit = Habit::new(user_id, timezone_offset, title);
 
-        match self.storage.put_habit(&new_habit) {
-            Ok(()) => Ok(new_habit),
+        match self.storage.put_habit(&habit) {
+            Ok(()) => Ok(habit),
             Err(e) => Err(format!("{}", e)),
         }
     }
@@ -37,15 +42,16 @@ impl HabitsProcessor {
         };
 
         let now = Utc::now();
-        let localnow = FixedOffset::west(habit.timezone_offset * 3600)
+        let naivenow = FixedOffset::west(habit.timezone_offset * 3600)
             .ymd(now.year(), now.month(), now.day())
-            .and_hms(now.hour(), now.minute(), now.second());
-        let naive = localnow.naive_utc();
+            .and_hms(now.hour(), now.minute(), now.second())
+            .naive_utc();
+
         let datestring = format!(
             "{:04}-{:02}-{:02}",
-            naive.year(),
-            naive.month(),
-            naive.day(),
+            naivenow.year(),
+            naivenow.month(),
+            naivenow.day(),
         );
 
         if !habit.checks.insert(datestring) {
@@ -104,5 +110,31 @@ impl HabitsProcessor {
 
     pub fn get_habits_by_userid(&self, id: String) -> Result<HashSet<Habit>, String> {
         self.storage.get_habits_by_userid(id)
+    }
+
+    pub fn update_habit(
+        &self,
+        id: Ksuid,
+        title: Option<String>,
+        timezone_offset: Option<i32>,
+    ) -> Result<Habit, String> {
+        let mut habit = match self.storage.get_habit(id) {
+            Ok(h) => h,
+            Err(e) => return Err(format!("{}", e)),
+        };
+
+        if let (None, None) = (&title, &timezone_offset) {
+            return Ok(habit);
+        }
+
+        if let Some(title) = title {
+            habit.title = title;
+        }
+
+        if let Some(timezone_offset) = timezone_offset {
+            habit.timezone_offset = timezone_offset;
+        }
+
+        self.storage.put_habit(&habit).map(|()| habit)
     }
 }
