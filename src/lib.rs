@@ -30,12 +30,10 @@ extern crate time;
 
 pub mod constants;
 pub mod externals;
-pub mod helpers;
 pub mod models;
 pub mod processors;
 pub mod resources;
 
+// Expose DbConn for submodule use and app setup.
 pub mod db_conn;
-
-// Expose DbConn for submodule use.
 pub use db_conn::DbConn;

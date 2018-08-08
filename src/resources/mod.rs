@@ -5,5 +5,5 @@ pub mod catchers;
 pub mod habits_resource;
 mod healthcheck;
 
-pub use self::healthcheck::*;
 // Wildcard exported for rocket route-metadata code generation.
+pub use self::healthcheck::*;

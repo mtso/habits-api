@@ -1,8 +1,0 @@
-server:
-  requestLog:
-    appenders:
-    - type: console
-      logFormat: '%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-agent}" "%i{X-Forwarded-For}"'
-  applicationConnectors:
-  - type: http
-    port: 8000

@@ -1,8 +1,15 @@
 # habits service
 
-Habits microservice. A REST API written in Rust and the Rocket web framework
+A REST API written in Rust and the Rocket web framework
 that persists data in a rocksdb embedded key/value store.
 Follows resource/processor/externals tiered application structure.
+
+## Requirements
+
+```
+cargo 1.29.0-nightly (506eea76e 2018-07-17)
+rocksdb v5.14.2
+```
 
 ## Extra `Rocket.toml` Configs
 
@@ -19,6 +26,8 @@ Follows resource/processor/externals tiered application structure.
 ```bash
 cargo run
 ```
+
+For now, the sst database files need to be dropped when adding/removing column families.
 
 ### In Production
 
@@ -38,3 +47,4 @@ docker run -d -p 8000:8000 \
 ## TODO
 
 - Run API docs collection as tests with newman.
+- Handle errors at all layers better.

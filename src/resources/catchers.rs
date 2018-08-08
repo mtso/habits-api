@@ -1,6 +1,8 @@
 use rocket::Request;
 use rocket_contrib::{Json, JsonValue};
 
+/// Default error catchers to render JSON response.
+
 #[catch(404)]
 pub fn not_found(_: &Request) -> Json<JsonValue> {
     Json(json!({

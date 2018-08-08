@@ -152,21 +152,3 @@ pub fn reset_habit_checks(
         Err(e) => StatusResponse(Status::NotFound, Json(json!({ "error": format!("{}", e) }))),
     }
 }
-
-use chrono::prelude::*;
-
-/// Used to test local date creation with chrono.
-#[get("/test/<tz>")]
-pub fn get_test(tz: i32) -> StatusResponse<Json<JsonValue>> {
-    let nowtz = Utc::now();
-    let nowdate = FixedOffset::west(tz * 3600).ymd(nowtz.year(), nowtz.month(), nowtz.day());
-    let timez = nowdate.and_hms(0, 0, 0);
-    let nowdate = nowdate.and_hms(nowtz.hour(), nowtz.minute(), nowtz.second());
-
-    let tt = nowdate.naive_utc();
-    StatusResponse::ok(Json(json!({
-        "timestamp": timez,
-        "date": nowdate.naive_utc(),
-        "test": format!("{}-{:02}-{:02}", tt.year(), tt.month(), tt.day()),
-    })))
-}

@@ -1,6 +1,8 @@
 FROM debian:jessie
 
 LABEL maintainer="mtso <~@mtso.io>"
+# Used once to build the base build image for the first build stage
+# where rocksdb is compiled-in.
 
 WORKDIR /root
 
