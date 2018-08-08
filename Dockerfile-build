@@ -1,0 +1,84 @@
+FROM debian:jessie
+
+LABEL maintainer="mtso <~@mtso.io>"
+
+WORKDIR /root
+
+# Install rocksdb dependencies
+
+ARG ROCKSDB_REPO='https://github.com/facebook/rocksdb.git'
+ARG ROCKSDB_VERSION='5.14.2'
+ARG ROCKSDB_TAG="v${ROCKSDB_VERSION}"
+
+RUN set -x\
+ && apt-get update && apt-get install -y\
+    build-essential\
+    git\
+    libbz2-dev\
+    libgflags-dev\
+    libjemalloc-dev\
+    libsnappy-dev\
+    libtbb-dev\
+    zlib1g-dev
+
+# Install rocksdb
+
+RUN git clone $ROCKSDB_REPO /tmp/rocksdb\
+ && cd /tmp/rocksdb\
+ && git checkout tags/${ROCKSDB_TAG}\
+ && make -j$(nproc) shared_lib\
+ && make install-shared\
+ && strip /usr/local/lib/librocksdb.so.${ROCKSDB_VERSION}\
+ && rm -rf /tmp/rocksdb
+
+# Rust installation dependencies
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        ssh \
+        libssl-dev \
+        pkg-config && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install cmake
+
+ARG CMAKE_VERSION=3.12
+
+RUN mkdir -p /tmp/cmake && cd /tmp/cmake && \
+    curl -O https://cmake.org/files/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.0.tar.gz && \
+    tar -xzvf cmake-$CMAKE_VERSION.0.tar.gz && \
+    cd cmake-$CMAKE_VERSION.0 && \
+    ./bootstrap && \
+    make -j4 && \
+    make install \
+    && rm -rf /tmp/cmake
+
+# Install rust
+
+ENV RUSTUP_HOME=/rust
+ENV CARGO_HOME=/cargo
+ENV PATH=/cargo/bin:/rust/bin:$PATH
+
+RUN echo "(curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly --no-modify-path) && rustup default nightly" > /install-rust.sh && chmod 755 /install-rust.sh
+
+# Clean build libraries
+
+RUN apt-get purge -y\
+    build-essential\
+    git\
+    libbz2-dev\
+    libgflags-dev\
+    libjemalloc-dev\
+    libsnappy-dev\
+    libtbb-dev\
+    zlib1g-dev
+
+RUN apt-get install -y\
+    libbz2-1.0\
+    libjemalloc1\
+    libtbb2\
+    zlib1g
