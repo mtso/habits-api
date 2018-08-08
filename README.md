@@ -25,7 +25,7 @@ cargo run
 ```bash
 make build version=[version]
 docker run -d -p 8000:8000 \
-    -v /tmp:/tmp \
+    -v /mnt:/volumes \ # Or wherever the persistent block storage is mounted
     --name habits \
     -e ROCKET_ENV=production \
     mtso/habits:[version]
